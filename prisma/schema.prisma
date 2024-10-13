@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userID        Int      @id @default(autoincrement())
+  name          String   @db.Char(50)
+  email         String   @db.Char(50)
+  password      String   @db.Char(50)
+  address       String   @db.Char(50)
+  phoneNumber   String   @db.Char(20)
+  dateJoined    DateTime @db.Date
+
+  // Relationships
+  orders        Order[]
+  wishlists     Wishlist[]
+}
+
+model Order {
+  orderID       Int      @id @default(autoincrement())
+  orderDate     DateTime @db.Date
+  shippingAddress String @db.Char(50)
+  shippingCost  Decimal    @db.Decimal(10, 2)
+  totalAmount   Decimal    @db.Decimal(10, 2)
+  status        String   @db.Char(50)
+
+  // Foreign key and relation
+  userID        Int
+  user          User     @relation(fields: [userID], references: [userID])
+
+  // Relationships
+  orderItems    OrderItem[]
+  payments      Payment[]
+}
+
+model OrderItem {
+  orderItemID   Int      @id @default(autoincrement())
+  quantity      Int
+  priceAtPurchase Decimal  @db.Decimal(10, 2)
+
+  // Foreign keys and relations
+  orderID       Int
+  order         Order    @relation(fields: [orderID], references: [orderID])
+
+  productID     Int
+  product       Product  @relation(fields: [productID], references: [productID])
+}
+
+model Payment {
+  paymentID     Int      @id @default(autoincrement())
+  paymentMethod String   @db.Char(50)
+  amount        Decimal    @db.Decimal(10, 2)
+  paymentDate   DateTime @db.Date
+  status        String   @db.Char(50)
+
+  // Foreign key and relation
+  orderID       Int
+  order         Order    @relation(fields: [orderID], references: [orderID])
+}
+
+model Product {
+  productID     Int      @id @default(autoincrement())
+  name          String   @db.Char(50)
+  description   String   @db.Char(50)
+  price         Decimal    @db.Decimal(10, 2)
+  size          String   @db.Char(10)
+  color         String   @db.Char(10)
+  category      String   @db.Char(10)
+  stockQuantity Int
+  imageURL      String   @db.Char(50)
+
+  // Relationships
+  orderItems    OrderItem[]
+  wishlists     Wishlist[]
+}
+
+model Wishlist {
+  wishlistID    Int      @id @default(autoincrement())
+  addedDate     DateTime @db.Date
+
+  // Foreign keys and relations
+  userID        Int
+  user          User     @relation(fields: [userID], references: [userID])
+
+  productID     Int
+  product       Product  @relation(fields: [productID], references: [productID])
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
