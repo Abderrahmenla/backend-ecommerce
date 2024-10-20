@@ -5,7 +5,7 @@
   "type": "commonjs",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon ./src/index.ts",
+    "dev": "nodemon --exec ts-node -r tsconfig-paths/register ./src/index.ts",
     "start": "TS_NODE_BASEURL=./dist/src node -r tsconfig-paths/register ./dist/src/index.js",
     "build": "npx tsc -p ."
   },
